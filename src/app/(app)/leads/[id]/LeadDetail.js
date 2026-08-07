@@ -17,6 +17,10 @@ export default function LeadDetail({ lead, initialNotes, team, isAdmin, currentU
     phone: lead.phone || "",
     source: lead.source || "",
     value: lead.value ?? "",
+    designation: lead.designation || "",
+    website: lead.website || "",
+    linkedin: lead.linkedin || "",
+    location: lead.location || "",
     status: lead.status,
     assigned_to: lead.assigned_to || "",
     next_follow_up: lead.next_follow_up || "",
@@ -40,6 +44,10 @@ export default function LeadDetail({ lead, initialNotes, team, isAdmin, currentU
       phone: form.phone || null,
       source: form.source || null,
       value: form.value === "" ? null : Number(form.value),
+      designation: form.designation || null,
+      website: form.website || null,
+      linkedin: form.linkedin || null,
+      location: form.location || null,
       status: form.status,
       next_follow_up: form.next_follow_up || null,
     };
@@ -99,6 +107,10 @@ export default function LeadDetail({ lead, initialNotes, team, isAdmin, currentU
             <Field label="Company"><input className="field" value={form.company} onChange={(e) => set("company", e.target.value)} /></Field>
             <Field label="Email"><input className="field" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></Field>
             <Field label="Phone"><input className="field" value={form.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
+            <Field label="Designation"><input className="field" value={form.designation} onChange={(e) => set("designation", e.target.value)} placeholder="e.g. Marketing Manager" /></Field>
+            <Field label="Website"><input className="field" value={form.website} onChange={(e) => set("website", e.target.value)} placeholder="company.com" /></Field>
+            <Field label="LinkedIn"><input className="field" value={form.linkedin} onChange={(e) => set("linkedin", e.target.value)} placeholder="linkedin.com/in/…" /></Field>
+            <Field label="Location"><input className="field" value={form.location} onChange={(e) => set("location", e.target.value)} placeholder="City, Country" /></Field>
             <Field label="Source"><input className="field" value={form.source} onChange={(e) => set("source", e.target.value)} /></Field>
             <Field label="Deal value">
               <input className="field" type="number" value={form.value} onChange={(e) => set("value", e.target.value)} placeholder="0" />

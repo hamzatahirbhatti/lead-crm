@@ -9,6 +9,10 @@ export const LEAD_FIELDS = [
   { key: "phone", label: "Phone", aliases: ["phone", "mobile", "telephone", "phone number", "cell"] },
   { key: "source", label: "Source", aliases: ["source", "channel", "lead source", "campaign"] },
   { key: "value", label: "Value", aliases: ["value", "deal value", "amount", "revenue", "budget"] },
+  { key: "designation", label: "Designation", aliases: ["designation", "title", "job title", "role", "position"] },
+  { key: "website", label: "Website", aliases: ["website", "site", "url", "web", "company website"] },
+  { key: "linkedin", label: "LinkedIn", aliases: ["linkedin", "linked in", "linkedin url", "li"] },
+  { key: "location", label: "Location", aliases: ["location", "city", "country", "region", "address"] },
 ];
 
 export function formatMoney(value) {

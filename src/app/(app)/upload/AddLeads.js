@@ -201,7 +201,7 @@ function CsvImport({ team, supabase, onDone, router }) {
 
 /* ------------------------------ Manual ------------------------------- */
 function ManualAdd({ team, supabase, onDone, router }) {
-  const empty = { name: "", company: "", email: "", phone: "", source: "", value: "", status: "New", assigned_to: "" };
+  const empty = { name: "", company: "", email: "", phone: "", source: "", value: "", designation: "", website: "", linkedin: "", location: "", status: "New", assigned_to: "" };
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -221,6 +221,10 @@ function ManualAdd({ team, supabase, onDone, router }) {
       phone: form.phone || null,
       source: form.source || null,
       value: form.value === "" ? null : Number(form.value),
+      designation: form.designation || null,
+      website: form.website || null,
+      linkedin: form.linkedin || null,
+      location: form.location || null,
       status: form.status,
       assigned_to: form.assigned_to || null,
     });
@@ -239,6 +243,10 @@ function ManualAdd({ team, supabase, onDone, router }) {
         <Field label="Company"><input className="field" value={form.company} onChange={(e) => set("company", e.target.value)} /></Field>
         <Field label="Email"><input className="field" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></Field>
         <Field label="Phone"><input className="field" value={form.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
+        <Field label="Designation"><input className="field" value={form.designation} onChange={(e) => set("designation", e.target.value)} placeholder="e.g. Marketing Manager" /></Field>
+        <Field label="Website"><input className="field" value={form.website} onChange={(e) => set("website", e.target.value)} placeholder="company.com" /></Field>
+        <Field label="LinkedIn"><input className="field" value={form.linkedin} onChange={(e) => set("linkedin", e.target.value)} placeholder="linkedin.com/in/…" /></Field>
+        <Field label="Location"><input className="field" value={form.location} onChange={(e) => set("location", e.target.value)} placeholder="City, Country" /></Field>
         <Field label="Source"><input className="field" value={form.source} onChange={(e) => set("source", e.target.value)} placeholder="Webinar, referral…" /></Field>
         <Field label="Deal value"><input className="field" type="number" value={form.value} onChange={(e) => set("value", e.target.value)} /></Field>
         <Field label="Status">

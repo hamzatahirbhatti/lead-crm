@@ -13,6 +13,8 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
   const [statusFilter, setStatusFilter] = useState(initialStatus || "");
   const [assigneeFilter, setAssigneeFilter] = useState(initialAssignee || "");
   const [savingId, setSavingId] = useState(null);
+  const [selected, setSelected] = useState(() => new Set());
+  const [deleting, setDeleting] = useState(false);
 
   const bds = team; // everyone can be assigned; admins included
 
@@ -43,6 +45,43 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
 
   function nameFor(id) {
     return team.find((t) => t.id === id)?.full_name || "Unassigned";
+  }
+
+  const allVisibleSelected = filtered.length > 0 && filtered.every((l) => selected.has(l.id));
+
+  function toggleOne(id) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      const allSel = filtered.length > 0 && filtered.every((l) => next.has(l.id));
+      filtered.forEach((l) => (allSel ? next.delete(l.id) : next.add(l.id)));
+      return next;
+    });
+  }
+
+  async function deleteSelected() {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    if (
+      !confirm(
+        `Delete ${ids.length} lead${ids.length === 1 ? "" : "s"}? This also removes their notes and cannot be undone.`
+      )
+    )
+      return;
+    setDeleting(true);
+    const { error } = await supabase.from("leads").delete().in("id", ids);
+    setDeleting(false);
+    if (error) return alert("Could not delete: " + error.message);
+    setLeads((prev) => prev.filter((l) => !selected.has(l.id)));
+    setSelected(new Set());
   }
 
   return (
@@ -89,6 +128,23 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
         <span className="ml-auto text-sm text-muted">{filtered.length} shown</span>
       </div>
 
+      {/* Bulk actions */}
+      {isAdmin && selected.size > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary-soft px-4 py-2.5">
+          <span className="text-sm font-medium text-primary">
+            {selected.size} selected
+          </span>
+          <div className="flex items-center gap-4">
+            <button className="text-sm text-muted hover:text-ink" onClick={() => setSelected(new Set())}>
+              Clear
+            </button>
+            <button className="btn-danger" onClick={deleteSelected} disabled={deleting}>
+              {deleting ? "Deleting…" : `Delete ${selected.size}`}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="card overflow-hidden">
         {filtered.length === 0 ? (
@@ -100,6 +156,17 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-line text-left text-xs font-medium text-muted">
+                  {isAdmin && (
+                    <th className="px-4 py-3 w-10">
+                      <input
+                        type="checkbox"
+                        checked={allVisibleSelected}
+                        onChange={toggleAll}
+                        className="h-4 w-4 cursor-pointer accent-primary"
+                        aria-label="Select all"
+                      />
+                    </th>
+                  )}
                   <th className="px-4 py-3 w-12 text-right">#</th>
                   <th className="px-4 py-3">Lead</th>
                   <th className="px-4 py-3">Status</th>
@@ -111,7 +178,23 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
               </thead>
               <tbody className="divide-y divide-line">
                 {filtered.map((l, i) => (
-                  <tr key={l.id} className={`hover:bg-surface ${savingId === l.id ? "opacity-60" : ""}`}>
+                  <tr
+                    key={l.id}
+                    className={`hover:bg-surface ${savingId === l.id ? "opacity-60" : ""} ${
+                      selected.has(l.id) ? "bg-primary-soft/40" : ""
+                    }`}
+                  >
+                    {isAdmin && (
+                      <td className="px-4 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(l.id)}
+                          onChange={() => toggleOne(l.id)}
+                          className="h-4 w-4 cursor-pointer accent-primary"
+                          aria-label={`Select ${l.name}`}
+                        />
+                      </td>
+                    )}
                     <td className="px-4 py-3 figure text-right text-xs text-muted">{i + 1}</td>
                     <td className="px-4 py-3">
                       <Link href={`/leads/${l.id}`} className="font-medium text-ink hover:text-primary">

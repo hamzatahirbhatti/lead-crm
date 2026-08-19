@@ -40,6 +40,7 @@ export default async function LeadsPage({ searchParams }) {
           team={team || []}
           isAdmin={isAdmin}
           initialStatus={searchParams?.status || ""}
+          initialAssignee={searchParams?.assignee || ""}
         />
       </div>
     </>

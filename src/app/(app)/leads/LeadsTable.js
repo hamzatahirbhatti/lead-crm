@@ -6,12 +6,12 @@ import { createClient } from "@/lib/supabase/client";
 import { STATUSES, formatMoney, formatDate } from "@/lib/constants";
 import StatusPill from "@/components/StatusPill";
 
-export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus }) {
+export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus, initialAssignee }) {
   const supabase = createClient();
   const [leads, setLeads] = useState(initialLeads);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(initialStatus || "");
-  const [assigneeFilter, setAssigneeFilter] = useState("");
+  const [assigneeFilter, setAssigneeFilter] = useState(initialAssignee || "");
   const [savingId, setSavingId] = useState(null);
 
   const bds = team; // everyone can be assigned; admins included
@@ -100,6 +100,7 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus 
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-line text-left text-xs font-medium text-muted">
+                  <th className="px-4 py-3 w-12 text-right">#</th>
                   <th className="px-4 py-3">Lead</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Assigned to</th>
@@ -109,8 +110,9 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus 
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {filtered.map((l) => (
+                {filtered.map((l, i) => (
                   <tr key={l.id} className={`hover:bg-surface ${savingId === l.id ? "opacity-60" : ""}`}>
+                    <td className="px-4 py-3 figure text-right text-xs text-muted">{i + 1}</td>
                     <td className="px-4 py-3">
                       <Link href={`/leads/${l.id}`} className="font-medium text-ink hover:text-primary">
                         {l.name}

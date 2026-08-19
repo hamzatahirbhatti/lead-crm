@@ -24,7 +24,7 @@ export default async function LeadPage({ params }) {
 
   const { data: notes = [] } = await supabase
     .from("notes")
-    .select("*, author:author_id(full_name)")
+    .select("*, author:author_id(full_name), reactions:note_reactions(user_id)")
     .eq("lead_id", params.id)
     .order("created_at", { ascending: false });
 

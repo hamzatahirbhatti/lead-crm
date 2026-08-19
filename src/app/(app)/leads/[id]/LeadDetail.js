@@ -68,12 +68,45 @@ export default function LeadDetail({ lead, initialNotes, team, isAdmin, currentU
     const { data, error } = await supabase
       .from("notes")
       .insert({ lead_id: lead.id, author_id: currentUserId, body: newNote.trim() })
-      .select("*, author:author_id(full_name)")
+      .select("*, author:author_id(full_name), reactions:note_reactions(user_id)")
       .single();
     setPostingNote(false);
     if (error) return alert("Could not add note: " + error.message);
     setNotes((prev) => [data, ...prev]);
     setNewNote("");
+  }
+
+  async function toggleReaction(note) {
+    const reacted = (note.reactions || []).some((r) => r.user_id === currentUserId);
+    // optimistic update
+    const apply = (add) =>
+      setNotes((prev) =>
+        prev.map((n) => {
+          if (n.id !== note.id) return n;
+          const list = n.reactions || [];
+          return {
+            ...n,
+            reactions: add
+              ? [...list, { user_id: currentUserId }]
+              : list.filter((r) => r.user_id !== currentUserId),
+          };
+        })
+      );
+    apply(!reacted);
+
+    const req = reacted
+      ? supabase
+          .from("note_reactions")
+          .delete()
+          .eq("note_id", note.id)
+          .eq("user_id", currentUserId)
+          .eq("emoji", "👍")
+      : supabase
+          .from("note_reactions")
+          .insert({ note_id: note.id, user_id: currentUserId, emoji: "👍" });
+
+    const { error } = await req;
+    if (error) apply(reacted); // revert on failure
   }
 
   async function deleteLead() {
@@ -173,6 +206,24 @@ export default function LeadDetail({ lead, initialNotes, team, isAdmin, currentU
                     <span className="figure text-xs text-muted">{formatDate(n.created_at)}</span>
                   </div>
                   <p className="whitespace-pre-wrap text-sm text-muted">{n.body}</p>
+                  {(() => {
+                    const count = (n.reactions || []).length;
+                    const reacted = (n.reactions || []).some((r) => r.user_id === currentUserId);
+                    return (
+                      <button
+                        onClick={() => toggleReaction(n)}
+                        className={`mt-2 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors ${
+                          reacted
+                            ? "border-primary/30 bg-primary-soft text-primary"
+                            : "border-line bg-white text-muted hover:bg-surface"
+                        }`}
+                        title={reacted ? "Remove your reaction" : "React with a thumbs up"}
+                      >
+                        <span className="text-sm leading-none">👍</span>
+                        {count > 0 && <span className="figure">{count}</span>}
+                      </button>
+                    );
+                  })()}
                 </li>
               ))}
             </ul>

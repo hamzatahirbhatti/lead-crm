@@ -72,8 +72,8 @@ export default async function DashboardPage() {
         <div className="card p-6">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-ink">Pipeline</h2>
-            <Link href="/leads" className="text-sm font-medium text-primary hover:underline">
-              View all leads
+            <Link href="/pipeline" className="text-sm font-medium text-primary hover:underline">
+              Open board
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">

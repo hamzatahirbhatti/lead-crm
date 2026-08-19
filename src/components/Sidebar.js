@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: "grid" },
+  { href: "/pipeline", label: "Pipeline", icon: "board" },
   { href: "/leads", label: "Leads", icon: "list" },
   { href: "/resources", label: "Resources", icon: "folder" },
   { href: "/upload", label: "Add leads", icon: "upload", adminOnly: true },
@@ -14,6 +15,7 @@ const NAV = [
 
 const ICONS = {
   grid: "M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z",
+  board: "M4 4h4v16H4zM10 4h4v11h-4zM16 4h4v7h-4z",
   list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
   folder: "M3 7a2 2 0 012-2h3.9a2 2 0 011.69.9l.82 1.2a2 2 0 001.69.9H19a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2z",
   upload: "M12 15V3m0 0L8 7m4-4l4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2",

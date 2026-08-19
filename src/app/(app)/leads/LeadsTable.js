@@ -15,12 +15,24 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
   const [savingId, setSavingId] = useState(null);
   const [selected, setSelected] = useState(() => new Set());
   const [deleting, setDeleting] = useState(false);
+  const [view, setView] = useState("all"); // "all" | "unassigned" | "assigned"
+
+  const viewCounts = useMemo(
+    () => ({
+      all: leads.length,
+      unassigned: leads.filter((l) => !l.assigned_to).length,
+      assigned: leads.filter((l) => l.assigned_to).length,
+    }),
+    [leads]
+  );
 
   const bds = team; // everyone can be assigned; admins included
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return leads.filter((l) => {
+      if (view === "unassigned" && l.assigned_to) return false;
+      if (view === "assigned" && !l.assigned_to) return false;
       if (statusFilter && l.status !== statusFilter) return false;
       if (assigneeFilter === "unassigned" && l.assigned_to) return false;
       if (assigneeFilter && assigneeFilter !== "unassigned" && l.assigned_to !== assigneeFilter)
@@ -32,7 +44,7 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
         (l.email || "").toLowerCase().includes(q)
       );
     });
-  }, [leads, search, statusFilter, assigneeFilter]);
+  }, [leads, search, statusFilter, assigneeFilter, view]);
 
   async function updateLead(id, patch) {
     setSavingId(id);
@@ -86,6 +98,28 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
 
   return (
     <div className="space-y-4">
+      {/* View tabs */}
+      <div className="inline-flex rounded-lg border border-line bg-white p-1">
+        {[
+          ["all", "All"],
+          ["unassigned", "Unassigned"],
+          ["assigned", "Assigned"],
+        ].map(([v, label]) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              view === v ? "bg-primary text-white" : "text-muted hover:text-ink"
+            }`}
+          >
+            {label}{" "}
+            <span className={`figure ${view === v ? "text-white/80" : "text-muted"}`}>
+              {viewCounts[v]}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3">
         <input
@@ -100,14 +134,14 @@ export default function LeadsTable({ initialLeads, team, isAdmin, initialStatus,
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-        {isAdmin && (
+        {isAdmin && view !== "unassigned" && (
           <select
             className="field w-auto"
             value={assigneeFilter}
             onChange={(e) => setAssigneeFilter(e.target.value)}
           >
             <option value="">All reps</option>
-            <option value="unassigned">Unassigned</option>
+            {view === "all" && <option value="unassigned">Unassigned</option>}
             {bds.map((t) => (
               <option key={t.id} value={t.id}>{t.full_name}</option>
             ))}
